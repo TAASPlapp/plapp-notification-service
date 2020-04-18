@@ -1,6 +1,7 @@
 package com.plapp.notificationservice.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.plapp.entities.messaging.DiagnosisMQDTO;
 import com.plapp.entities.messaging.ScheduleActionMQDTO;
 import com.plapp.notificationservice.entities.DiagnosisNotification;
 import com.plapp.notificationservice.entities.NotificationServiceRegistration;
@@ -27,25 +28,26 @@ public class RabbitMQReceiver {
     private final String scheduleActionClass = "com.plapp.entities.schedules.ScheduleActionMQDTO";
     private final String diagnosisClass = "com.plapp.entities.schedules.DiagnosisMQDTO";
 
-    @RabbitListener(queues = "gardener.queue")
+    @RabbitListener
     public void receiveMessage(final Message message) throws IOException, ExecutionException, InterruptedException {
+        System.out.println("ASDASDSAD " + message);
         //fcmService.sendPushMessage("This IS a JOKE!");
         ObjectMapper objectMapper = new ObjectMapper();
         String messageBody = new String(message.getBody());
 
         if(message.getMessageProperties().getHeaders().values().contains(scheduleActionClass)){
-            ScheduleActionNotification scheduleActionNotification = objectMapper.readValue(messageBody,ScheduleActionNotification.class);
+            ScheduleActionMQDTO scheduleActionNotification = objectMapper.readValue(messageBody,ScheduleActionMQDTO.class);
             for(NotificationServiceRegistration nsr : notificationServiceRegistrationRepository
                     .findAllByUserId(scheduleActionNotification
-                            .getUserId())){
-                fcmService.sendPushMessage(messageBody,"diagnosis",nsr.getFirebaseToken());
+                            .getPlant().getOwner())){
+                fcmService.sendPushMessage(messageBody,"schedule",nsr.getFirebaseToken());
             }
         }
         else if(message.getMessageProperties().getHeaders().values().contains(diagnosisClass)){
-            DiagnosisNotification diagnosisNotification = objectMapper.readValue(messageBody,DiagnosisNotification.class);
+            DiagnosisMQDTO diagnosisNotification = objectMapper.readValue(messageBody,DiagnosisMQDTO.class);
             for(NotificationServiceRegistration nsr : notificationServiceRegistrationRepository
                     .findAllByUserId(diagnosisNotification
-                            .getUserId())){
+                            .getPlant().getOwner())){
                 fcmService.sendPushMessage(messageBody,"diagnosis",nsr.getFirebaseToken());
             }
 
