@@ -53,7 +53,7 @@ public class RabbitMQReceiver {
         ObjectMapper objectMapper = new ObjectMapper();
         String messageBody = new String(message.getBody());
 
-        if(message.getMessageProperties().getHeaders().containsValue("com.plapp.entities.schedules.ScheduleActionMQDTO")){
+        if(message.getMessageProperties().getHeaders().containsValue("com.plapp.entities.messaging.ScheduleActionMQDTO")){
             ScheduleActionMQDTO scheduleActionNotification = objectMapper.readValue(messageBody, ScheduleActionMQDTO.class);
             System.out.println("Received ScheduleActionMQDTO: " + scheduleActionNotification);
             for(NotificationServiceRegistration nsr : notificationServiceRegistrationRepository
@@ -62,13 +62,13 @@ public class RabbitMQReceiver {
                 fcmService.sendPushMessage(messageBody,"schedule",nsr.getFirebaseToken());
             }
         }
-        else if(message.getMessageProperties().getHeaders().containsValue("com.plapp.entities.schedules.DiagnosisMQDTO")){
+        else if(message.getMessageProperties().getHeaders().containsValue("com.plapp.entities.messaging.DiagnosisMQDTO")){
             DiagnosisMQDTO diagnosisNotification = objectMapper.readValue(messageBody,DiagnosisMQDTO.class);
             System.out.println("Received DiagnosisMQTDO: " + diagnosisNotification);
             for(NotificationServiceRegistration nsr : notificationServiceRegistrationRepository
                     .findAllByUserId(diagnosisNotification
                             .getPlant().getOwner())){
-                fcmService.sendPushMessage(messageBody,"diagnosis",nsr.getFirebaseToken());
+                fcmService.sendPushMessage(messageBody,"diagnosis", nsr.getFirebaseToken());
             }
         }
     }

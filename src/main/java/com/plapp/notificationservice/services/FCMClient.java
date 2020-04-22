@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.google.firebase.messaging.*;
 import com.plapp.notificationservice.utils.FCMInitializer;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -20,16 +21,11 @@ import com.google.firebase.FirebaseOptions;
 @Service
 public class FCMClient {
 
-    public FCMClient(FCMInitializer settings) {
-        //System.out.println("CON PARAMETRO");
-        Path p = Paths.get(settings.getServiceAccountFile());
-        try (InputStream serviceAccount = Files.newInputStream(p)) {
-            FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
-            FirebaseApp.initializeApp(options);
-        }
-        catch (IOException e) {
-        }
+    public FCMClient(FCMInitializer settings) throws IOException {
+        InputStream serviceAccount = (new ClassPathResource(settings.getServiceAccountFile())).getInputStream();
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
+        FirebaseApp.initializeApp(options);
     }
 
     //firebaseToken := token che identifica il destinatario del messaggio
@@ -44,14 +40,10 @@ public class FCMClient {
         System.out.println("Sent message: " + response);
     }
 
-    public void subscribe(String topic, String clientToken) {
-        try {
-            TopicManagementResponse response = FirebaseMessaging.getInstance()
-                    .subscribeToTopicAsync(Collections.singletonList(clientToken), topic).get();
-            System.out
-                    .println(response.getSuccessCount() + " tokens were subscribed successfully");
-        }
-        catch (InterruptedException | ExecutionException e) {
-        }
+    public void subscribe(String topic, String clientToken) throws InterruptedException, ExecutionException {
+        TopicManagementResponse response = FirebaseMessaging
+                .getInstance()
+                .subscribeToTopicAsync(Collections.singletonList(clientToken), topic).get();
+        System.out.println(response.getSuccessCount() + " tokens were subscribed successfully");
     }
 }

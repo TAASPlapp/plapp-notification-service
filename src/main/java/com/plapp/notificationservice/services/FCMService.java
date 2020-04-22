@@ -9,14 +9,10 @@ import java.util.concurrent.ExecutionException;
 
 @Service
 public class FCMService {
-
     private final FCMClient fcmClient;
-    private final WebClient webClient;
-    private int seq = 0;
 
-    public FCMService(FCMClient fcmClient, WebClient webClient) {
+    public FCMService(FCMClient fcmClient) {
         this.fcmClient = fcmClient;
-        this.webClient = webClient;
     }
 
     void sendPushMessage(String json, String type, String firebaseToken) throws InterruptedException, ExecutionException {
@@ -24,7 +20,7 @@ public class FCMService {
         data.put("type", type);
         data.put("json", json);
         System.out.println("Sending chuck joke...");
-        this.fcmClient.send(data,firebaseToken);
+        this.fcmClient.send(data, firebaseToken);
     }
 
 }
