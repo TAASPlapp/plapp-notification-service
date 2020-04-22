@@ -46,10 +46,6 @@ public class RabbitMQReceiver {
         return BindingBuilder.bind(queue).to(exchange).with(rabbitMQConfig.getNotificationRoutingKey());
     }
 
-    //These are all the possible types of Objects that can be received through the "gardener.queue" queue.
-    private final String scheduleActionClass = "com.plapp.entities.schedules.ScheduleActionMQDTO";
-    private final String diagnosisClass = "com.plapp.entities.schedules.DiagnosisMQDTO";
-
     @RabbitListener(queues = "${mq.notification.queue}")
     public void receiveMessage(final Message message) throws IOException, ExecutionException, InterruptedException {
         System.out.println("Received message: " + message);
@@ -57,8 +53,8 @@ public class RabbitMQReceiver {
         ObjectMapper objectMapper = new ObjectMapper();
         String messageBody = new String(message.getBody());
 
-        if(message.getMessageProperties().getHeaders().containsValue(scheduleActionClass)){
-            ScheduleActionMQDTO scheduleActionNotification = objectMapper.readValue(messageBody,ScheduleActionMQDTO.class);
+        if(message.getMessageProperties().getHeaders().containsValue("com.plapp.entities.schedules.ScheduleActionMQDTO")){
+            ScheduleActionMQDTO scheduleActionNotification = objectMapper.readValue(messageBody, ScheduleActionMQDTO.class);
             System.out.println("Received ScheduleActionMQDTO: " + scheduleActionNotification);
             for(NotificationServiceRegistration nsr : notificationServiceRegistrationRepository
                     .findAllByUserId(scheduleActionNotification
@@ -66,7 +62,7 @@ public class RabbitMQReceiver {
                 fcmService.sendPushMessage(messageBody,"schedule",nsr.getFirebaseToken());
             }
         }
-        else if(message.getMessageProperties().getHeaders().containsValue(diagnosisClass)){
+        else if(message.getMessageProperties().getHeaders().containsValue("com.plapp.entities.schedules.DiagnosisMQDTO")){
             DiagnosisMQDTO diagnosisNotification = objectMapper.readValue(messageBody,DiagnosisMQDTO.class);
             System.out.println("Received DiagnosisMQTDO: " + diagnosisNotification);
             for(NotificationServiceRegistration nsr : notificationServiceRegistrationRepository
