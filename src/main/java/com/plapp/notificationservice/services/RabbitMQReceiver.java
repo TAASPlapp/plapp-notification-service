@@ -30,27 +30,28 @@ public class RabbitMQReceiver {
 
     @RabbitListener
     public void receiveMessage(final Message message) throws IOException, ExecutionException, InterruptedException {
-        System.out.println("ASDASDSAD " + message);
-        //fcmService.sendPushMessage("This IS a JOKE!");
+        System.out.println("Received message: " + message);
+
         ObjectMapper objectMapper = new ObjectMapper();
         String messageBody = new String(message.getBody());
 
-        if(message.getMessageProperties().getHeaders().values().contains(scheduleActionClass)){
+        if(message.getMessageProperties().getHeaders().containsValue(scheduleActionClass)){
             ScheduleActionMQDTO scheduleActionNotification = objectMapper.readValue(messageBody,ScheduleActionMQDTO.class);
+            System.out.println("Received ScheduleActionMQDTO: " + scheduleActionNotification);
             for(NotificationServiceRegistration nsr : notificationServiceRegistrationRepository
                     .findAllByUserId(scheduleActionNotification
                             .getPlant().getOwner())){
                 fcmService.sendPushMessage(messageBody,"schedule",nsr.getFirebaseToken());
             }
         }
-        else if(message.getMessageProperties().getHeaders().values().contains(diagnosisClass)){
+        else if(message.getMessageProperties().getHeaders().containsValue(diagnosisClass)){
             DiagnosisMQDTO diagnosisNotification = objectMapper.readValue(messageBody,DiagnosisMQDTO.class);
+            System.out.println("Received DiagnosisMQTDO: " + diagnosisNotification);
             for(NotificationServiceRegistration nsr : notificationServiceRegistrationRepository
                     .findAllByUserId(diagnosisNotification
                             .getPlant().getOwner())){
                 fcmService.sendPushMessage(messageBody,"diagnosis",nsr.getFirebaseToken());
             }
-
         }
     }
 
