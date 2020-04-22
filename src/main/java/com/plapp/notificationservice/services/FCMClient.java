@@ -10,7 +10,10 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.google.firebase.messaging.*;
+import com.plapp.notificationservice.controllers.RegistryController;
 import com.plapp.notificationservice.utils.FCMInitializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -20,12 +23,19 @@ import com.google.firebase.FirebaseOptions;
 
 @Service
 public class FCMClient {
+    private final Logger logger = LoggerFactory.getLogger(FCMClient.class);
 
     public FCMClient(FCMInitializer settings) throws IOException {
-        InputStream serviceAccount = (new ClassPathResource(settings.getServiceAccountFile())).getInputStream();
-        FirebaseOptions options = new FirebaseOptions.Builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
+        String path = settings.getServiceAccountFile();
+        logger.info("Loading {} from ClassPathResource", path);
+
+        InputStream serviceAccount = new ClassPathResource(path).getInputStream();
+        FirebaseOptions options = new FirebaseOptions.Builder().setCredentials(
+                GoogleCredentials.fromStream(serviceAccount)
+        ).build();
         FirebaseApp.initializeApp(options);
+
+        logger.info("FCM App initialized");
     }
 
     //firebaseToken := token che identifica il destinatario del messaggio
@@ -37,7 +47,7 @@ public class FCMClient {
                 .setToken(firebaseToken)
                 .build();
         String response = FirebaseMessaging.getInstance().sendAsync(message).get();
-        System.out.println("Sent message: " + response);
+        logger.info("Sent message {}; got response {}", data, response);
     }
 
     public void subscribe(String topic, String clientToken) throws InterruptedException, ExecutionException {
