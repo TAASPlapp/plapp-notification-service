@@ -25,7 +25,7 @@ public class RegistryController {
         this.fcmClient = fcmClient;
     }
 
-    @PostMapping("/{userId}/register")
+    @GetMapping("/{userId}/register")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void register(@PathVariable ("userId") long userId, @RequestParam long sessionId, @RequestParam String firebaseToken) throws InterruptedException, ExecutionException  {
         logger.info("Registering user {} sessionId {} with token {}", userId, sessionId, firebaseToken);
