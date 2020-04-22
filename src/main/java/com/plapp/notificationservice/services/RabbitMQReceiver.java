@@ -65,9 +65,12 @@ public class RabbitMQReceiver {
         else if(message.getMessageProperties().getHeaders().containsValue("com.plapp.entities.messaging.DiagnosisMQDTO")){
             DiagnosisMQDTO diagnosisNotification = objectMapper.readValue(messageBody,DiagnosisMQDTO.class);
             System.out.println("Received DiagnosisMQTDO: " + diagnosisNotification);
+            System.out.println("Sending to owner: " + diagnosisNotification.getPlant().getOwner());
+
             for(NotificationServiceRegistration nsr : notificationServiceRegistrationRepository
                     .findAllByUserId(diagnosisNotification
                             .getPlant().getOwner())){
+                System.out.println("Sending to token: " + nsr.getFirebaseToken());
                 fcmService.sendPushMessage(messageBody,"diagnosis", nsr.getFirebaseToken());
             }
         }
