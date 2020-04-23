@@ -59,7 +59,8 @@ public class RabbitMQReceiver {
             for(NotificationServiceRegistration nsr : notificationServiceRegistrationRepository
                     .findAllByUserId(scheduleActionNotification
                             .getPlant().getOwner())){
-                fcmService.sendPushMessage(messageBody,"schedule",nsr.getFirebaseToken());
+                fcmService.sendSchedule(scheduleActionNotification, nsr.getFirebaseToken());
+                //fcmService.sendPushMessage(messageBody,"schedule",nsr.getFirebaseToken());
             }
         }
         else if(message.getMessageProperties().getHeaders().containsValue("com.plapp.entities.messaging.DiagnosisMQDTO")){
@@ -71,7 +72,8 @@ public class RabbitMQReceiver {
                     .findAllByUserId(diagnosisNotification
                             .getPlant().getOwner())){
                 System.out.println("Sending to token: " + nsr.getFirebaseToken());
-                fcmService.sendPushMessage(messageBody,"diagnosis", nsr.getFirebaseToken());
+                fcmService.sendDiagnosis(diagnosisNotification, nsr.getFirebaseToken());
+                //fcmService.sendPushMessage(messageBody,"diagnosis", nsr.getFirebaseToken());
             }
         }
     }
