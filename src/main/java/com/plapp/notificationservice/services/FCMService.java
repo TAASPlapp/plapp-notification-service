@@ -16,11 +16,16 @@ public class FCMService {
     }
 
     void sendPushMessage(String json, String type, String firebaseToken) throws InterruptedException, ExecutionException {
-        Map<String, String> data = new HashMap<>();
-        data.put("type", type);
-        data.put("json", json);
-        System.out.println("Sending chuck joke...");
-        this.fcmClient.send(data, firebaseToken);
+        try {
+            Map<String, String> data = new HashMap<>();
+            data.put("type", type);
+            data.put("json", json);
+            System.out.println("Sending chuck joke...");
+            this.fcmClient.send(data, firebaseToken);
+        } catch (Exception e) {
+            System.err.println("Cannot send message");
+            e.printStackTrace();
+        }
     }
 
 }
