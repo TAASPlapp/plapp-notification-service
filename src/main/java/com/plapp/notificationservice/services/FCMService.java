@@ -21,7 +21,11 @@ public class FCMService {
         try {
             Map<String, String> data = new HashMap<>();
             data.put("title", "Diagnosis result");
-            data.put("body", String.format("Disease %s for plant %s", diagnosisMQDTO.getDisease(), diagnosisMQDTO.getPlant()));
+            data.put("body", String.format(
+                    "Diagnosis: \"%s\" for plant %s",
+                    diagnosisMQDTO.getDisease(),
+                    diagnosisMQDTO.getPlant().getName()
+            ));
             this.fcmClient.send(data, firebaseToken);
         } catch (Exception e) {
             System.err.println("Cannot send message");
@@ -33,7 +37,13 @@ public class FCMService {
         try {
             Map<String, String> data = new HashMap<>();
             data.put("title", "Action needed");
-            data.put("body", String.format("Action: %s for plant %s", scheduleActionMQDTO.getAction(), scheduleActionMQDTO.getPlant()));
+            data.put("body", String.format(
+                    "Action: %s for plant %s (%s)",
+                    scheduleActionMQDTO.getAction(),
+                    scheduleActionMQDTO.getPlant().getName(),
+                    scheduleActionMQDTO.getAdditionalInfo()
+            ));
+
             this.fcmClient.send(data, firebaseToken);
         } catch (Exception e) {
             System.err.println("Cannot send message");

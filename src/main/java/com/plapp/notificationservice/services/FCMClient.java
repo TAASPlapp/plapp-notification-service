@@ -48,7 +48,6 @@ public class FCMClient {
                         .setTitle(data.get("title"))
                         .build()
                 )
-                //.putAllData(data)
                 .setToken(firebaseToken)
                 .build();
         String response = FirebaseMessaging.getInstance().sendAsync(message).get();
