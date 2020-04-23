@@ -43,7 +43,8 @@ public class FCMClient {
             throws InterruptedException, ExecutionException {
 
         Message message = Message.builder()
-                .putAllData(data)
+                .setNotification(new Notification(data.get("title"), data.get("body")))
+                //.putAllData(data)
                 .setToken(firebaseToken)
                 .build();
         String response = FirebaseMessaging.getInstance().sendAsync(message).get();
